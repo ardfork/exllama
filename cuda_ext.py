@@ -10,6 +10,14 @@ import os
 library_dir = "../exllama/"
 extension_name = "exllama_ext"
 
+if torch.version.hip:
+    # FIXME: To build, I had to comment "flags += ['-fno-gpu-rdc']" in torch/utils/cpp_extension.py.
+    # I am not sure if it's possible to find a way to build without editing that file.
+    # If building without gpu-rdc, build will error with "lld: error: undefined hidden symbol: __llvm_amdgcn_rcp_f16".
+    extra_cuda_cflags= ["-U__HIP_NO_HALF_CONVERSIONS__", "-fgpu-rdc"]
+else:
+    extra_cuda_cflags = []
+
 exllama_ext = load(
     name = extension_name,
     sources = [
@@ -21,6 +29,7 @@ exllama_ext = load(
         os.path.join(library_dir, "exllama_ext/q4v2_sequential.cu"),
         os.path.join(library_dir, "exllama_ext/rms_norm.cu")
     ],
+    extra_cuda_cflags = extra_cuda_cflags
     # verbose = True,
     # extra_cflags = ["-ftime-report", "-DTORCH_USE_CUDA_DSA"]
 )

@@ -19,6 +19,22 @@
 // Python is super tricky, so in place of proper exceptions, CUDA functions return with a cudaError_t which we can
 // parse and dump to the console.
 
+#if defined(USE_ROCM)
+// FIXME: Get aborted, here the stacktrace:
+// #0  in ?? () from /usr/lib/libc.so.6
+// #1  in raise () from /usr/lib/libc.so.6
+// #2  in abort () from /usr/lib/libc.so.6
+// #3  in amd::report_fatal(char const*, int, char const*) () from torch/lib/libamdhip64.so
+// #4  in hip::DeviceFunc::DeviceFunc(std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ihipModule_t*) ()
+//    from torch/lib/libamdhip64.so
+// #5  in hip::Function::getStatFunc(ihipModuleSymbol_t**, int) () from torch/lib/libamdhip64.so
+// #6  in hip::StatCO::getStatFunc(ihipModuleSymbol_t**, void const*, int) () from torch/lib/libamdhip64.so
+// #7  in ihipLaunchKernel(void const*, dim3, dim3, void**, unsigned long, ihipStream_t*, ihipEvent_t*, ihipEvent_t*, int) ()
+//    from torch/lib/libamdhip64.so
+// #8  in hipLaunchKernel_common () from torch/lib/libamdhip64.so
+// #9  in hipLaunchKernel () from torch/lib/libamdhip64.so
+#define _cuda_raise(fn)
+#else
 #define _cuda_raise(fn) \
 do { \
     cudaError_t _cuda_err_temp; \
@@ -40,6 +56,7 @@ do { \
         } \
     } \
 } while(false)
+#endif
 
 
 void q4v2_matmul

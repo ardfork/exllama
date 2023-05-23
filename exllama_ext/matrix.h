@@ -1,8 +1,13 @@
 #ifndef _matrix_h
 #define _matrix_h
 
+#if USE_ROCM
+#include <hip/hip_runtime.h>
+#include <hip/hip_fp16.h>
+#else
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>
+#endif
 
 class MatrixView_half
 {

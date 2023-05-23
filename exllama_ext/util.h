@@ -1,12 +1,25 @@
 #ifndef _util_h
 #define _util_h
 
+#if USE_ROCM
+#include <hip/hip_runtime.h>
+#include <hip/hip_fp16.h>
+#define cudaDeviceSynchronize hipDeviceSynchronize
+#define cudaError_t hipError_t
+#define cudaMalloc hipMalloc
+#define cudaMemcpy hipMemcpy
+#define cudaMemcpyDeviceToHost hipMemcpyDeviceToHost
+#define cudaMemcpyHostToDevice hipMemcpyHostToDevice
+#define cudaSuccess hipSuccess
+#define cudaUnspecified hipErrorUnknown
+#else
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>
+#define cudaUnspecified cudaErrorApiFailureBase
+#endif
 #include <cstdint>
 #include <cstdio>
 
-#define cudaUnspecified cudaErrorApiFailureBase
 
 // React to failure on return code != cudaSuccess
 
